@@ -35,4 +35,16 @@ app.post("/create-qris", async (req, res) => {
     res.json(result.data);
   } catch (err) {
     console.log(err.response?.data || err);
-    res.status(
+    res.status(500).json({ error: "failed to create qris" });
+  }
+});
+
+app.post("/webhook", (req, res) => {
+  console.log("FLIP WEBHOOK:", req.body);
+  // di sini lo update status transaksi ke DB (kalau ada)
+  res.status(200).send("OK");
+});
+
+app.listen(PORT, () => {
+  console.log("Backend running on port", PORT);
+});
