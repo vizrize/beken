@@ -6,20 +6,27 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+const API_KEY = process.env.FLIP_API_KEY;
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Flip QRIS backend is running!");
+});
+
 app.post("/create-qris", async (req, res) => {
   try {
-    const { amount } = req.body;
+    const amount = req.body.amount;
 
     const result = await axios.post(
       "https://bigflip.id/api/v3/qris",
       {
         amount: amount,
         partner_tx_id: "trx_" + Date.now(),
-        callback_url: "https://YOUR-RENDER-URL.onrender.com/webhook-qris"
+        callback_url: process.env.WEBHOOK_URL
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.FLIP_API_KEY}`,
+          Authorization: `Bearer ${API_KEY}`,
           "Content-Type": "application/json"
         }
       }
@@ -28,15 +35,4 @@ app.post("/create-qris", async (req, res) => {
     res.json(result.data);
   } catch (err) {
     console.log(err.response?.data || err);
-    res.status(500).json({ error: "failed" });
-  }
-});
-
-app.post("/webhook-qris", (req, res) => {
-  console.log("Webhook Flip:", req.body);
-  res.send("OK");
-});
-
-app.listen(process.env.PORT, () => {
-  console.log("Backend jalan di port", process.env.PORT);
-});
+    res.status(
